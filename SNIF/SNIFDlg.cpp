@@ -15,6 +15,8 @@
 
 CSNIFDlg::CSNIFDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CSNIFDlg::IDD, pParent)
+	,m_Sniffer()
+	,NICs(/*MIB_IF_TYPE_ETHERNET*/)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -22,12 +24,16 @@ CSNIFDlg::CSNIFDlg(CWnd* pParent /*=NULL*/)
 void CSNIFDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_BTN_START, m_btnStart);
+	DDX_Control(pDX, IDC_CBO_NICs, m_cboNICs);
+	DDX_Control(pDX, IDC_LVW_NIC_DETAIL, m_lvwNICDetail);
 }
 
 BEGIN_MESSAGE_MAP(CSNIFDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_DESTROY()
 	ON_WM_QUERYDRAGICON()
+	ON_CBN_SELCHANGE(IDC_CBO_NICs, &CSNIFDlg::OnCbnSelchangeCboNics)
 END_MESSAGE_MAP()
 
 BOOL CSNIFDlg::OnInitDialog()
@@ -36,6 +42,16 @@ BOOL CSNIFDlg::OnInitDialog()
 
 	SetIcon(m_hIcon, TRUE);
 	SetIcon(m_hIcon, FALSE);
+
+	m_lvwNICDetail.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_INFOTIP | LVS_EX_GRIDLINES);
+	m_lvwNICDetail.InsertColumn(0, _T("Property"), LVCFMT_LEFT, 100);
+	m_lvwNICDetail.InsertColumn(1, _T("Value"), LVCFMT_LEFT, 180);
+	m_lvwNICDetail.DeleteAllItems();
+
+	for(SIZE_T n=0;n<NICs.getCount();n++) {
+		m_cboNICs.AddString(NICs.getInterfaceName(n));
+	}
+
 
 	return TRUE;
 }
@@ -141,11 +157,36 @@ bool CSNIFDlg::AddSocket(ISocket* pSocket)
 	return true;
 }
 
-void CSNIFDlg::ReceiveData(ISocket* pSocket, const BYTE* data)
+void CSNIFDlg::SocketData(ISocket* pSocket, const BYTE* data)
 {
 	if(nullptr == pSocket) {
 		return;
 	}
 
 
+}
+
+void CSNIFDlg::OnCbnSelchangeCboNics()
+{
+	m_lvwNICDetail.DeleteAllItems();
+	int nSel = m_cboNICs.GetCurSel();
+	m_btnStart.EnableWindow(FALSE);
+
+	if(CB_ERR == nSel) {
+		return;
+	}
+
+	CString strType = NICs.getTypeName(nSel);
+	int nItem = m_lvwNICDetail.InsertItem(m_lvwNICDetail.GetItemCount(), _T("Type"));
+	m_lvwNICDetail.SetItemText(nItem, 1, strType);
+
+	CString strMAC = NICs.getMACAddress(nSel);
+	nItem = m_lvwNICDetail.InsertItem(m_lvwNICDetail.GetItemCount(), _T("MAC Address"));
+	m_lvwNICDetail.SetItemText(nItem, 1, strMAC);
+
+	CString strIP = NICs.getIPAddress(nSel);
+	nItem = m_lvwNICDetail.InsertItem(m_lvwNICDetail.GetItemCount(), _T("IP Address"));
+	m_lvwNICDetail.SetItemText(nItem, 1, strIP);
+
+	m_btnStart.EnableWindow(!strIP.IsEmpty());
 }

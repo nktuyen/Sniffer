@@ -6,11 +6,19 @@ DWORD WINAPI TCPListenProc(LPVOID lpParam)
 {
 	TCPSocket* pSocket = (TCPSocket*)lpParam;
 	if(nullptr != pSocket){
-		fd_set reads;
-		fd_set writes;
+		fd_set reads = {0};
+		fd_set writes = {0};
 		while (pSocket->isValidHandle())
 		{
-			select(0, &reads, &writes, nullptr, time);
+			FD_ZERO(&reads);
+			//FD_ZERO(&writes);
+
+			FD_SET(pSocket->getHandle(), &reads);
+			//FD_SET(pSocket->getHandle(), &writes);
+			int nSocks = select(0, &reads, &writes, nullptr, nullptr);
+			if(0 < nSocks) { //There are some sockets are ready for accept
+				TCPSocket* pNewSock = pSocket->Accept();
+			}
 		}
 
 		return 0;

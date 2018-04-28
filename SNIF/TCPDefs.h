@@ -70,20 +70,14 @@ __interface ISocketManager;
 __interface ISocket
 {
 	virtual SOCKET getHandle() = 0;
-	virtual bool Create(EAddressFamily eFamily, ESocketType eType, EProtocol eProto) = 0;
-	virtual bool Bind(const char* strIPAddress, unsigned short uPortNo) = 0;
-	virtual bool Connect(const char* strRemoteIP, unsigned short uRemotePort) = 0;
-	virtual bool Listen(int nMaxConn) = 0;
-	virtual ISocket* Accept() = 0;
+	virtual void setManager(ISocketManager*) = 0;
 	virtual bool Close() = 0;
-	virtual void setManager(ISocketManager* pmanager) = 0;
-	virtual bool setOption(long opt, unsigned long *val) = 0;
 };
 
 __interface ISocketManager
 {
 	virtual bool AddSocket(ISocket* pSock) = 0;
-	virtual void ReceiveData(ISocket* pSocket, const BYTE* data) = 0;
+	virtual void SocketData(ISocket* pSocket, const BYTE* data) = 0;
 };
 
 #endif	//__TCP_DEFINITION_HEADER__

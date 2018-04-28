@@ -96,6 +96,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="NetworkInterfaces.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SNIF.h" />
     <ClInclude Include="SNIFDlg.h" />
@@ -107,6 +108,7 @@
     <ClInclude Include="UIDialog.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="NetworkInterfaces.cpp" />
     <ClCompile Include="SNIF.cpp" />
     <ClCompile Include="SNIFDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -129,4 +131,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="SNIF.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
